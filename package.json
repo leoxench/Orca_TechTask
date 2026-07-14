@@ -1,0 +1,17 @@
+{
+  "name": "cypress-automation-exercise",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cypress automation assignment for Automation Exercise",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test": "npm run cy:run"
+  },
+  "devDependencies": {
+    "cypress": "15.18.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
