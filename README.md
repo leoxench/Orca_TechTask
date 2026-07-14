@@ -1,58 +1,49 @@
-Скопіюй цей текст повністю в `README.md`:
-
-````markdown
 # Cypress Automation Test Assignment
 
-<p align="center">
-  End-to-end Cypress automation project for the Automation Exercise demo e-commerce website.
-</p>
+A compact Cypress end-to-end automation project created for the Orca AQA Engineer technical assignment.
 
-<p align="center">
-  <strong>Candidate:</strong> Leonid Ksenchuk<br>
-  <strong>Company:</strong> Orca<br>
-  <strong>Position:</strong> AQA Engineer<br>
-  <strong>Assignment:</strong> Technical Test
-</p>
+Candidate: Leonid Ksenchuk  
+Company: Orca  
+Position: AQA Engineer  
 
 ---
 
 ## Overview
 
-This project contains one Cypress end-to-end automated test for the public [Automation Exercise](https://automationexercise.com/) e-commerce website.
+This project validates the cart flow on the public demo e-commerce website:
 
-The test validates that the `Blue Top` product can be added to the cart and that the product information displayed in the cart matches the information shown on the Products page.
+https://automationexercise.com/
 
-## Covered Scenario
+The automated test finds the Blue Top product, stores its displayed price, adds it to the cart, and verifies that the cart contains the expected product information.
 
-The automated test performs the following steps:
+## Test Scenario
 
-1. Opens the Automation Exercise website.
-2. Navigates to the Products page.
-3. Finds the `Blue Top` product.
-4. Captures the displayed product price.
-5. Adds `Blue Top` to the cart.
-6. Opens the cart from the confirmation modal.
-7. Verifies the product details in the cart.
+1. Open the website.
+2. Navigate to the Products page.
+3. Find Blue Top.
+4. Capture the displayed product price.
+5. Add Blue Top to the cart.
+6. Open the cart from the confirmation modal.
+7. Verify the cart content.
 
 ## Assertions
 
-The test verifies that:
+The test confirms that:
 
-- the product name is `Blue Top`;
+- the product name is Blue Top;
 - the product price is displayed;
-- the cart price matches the price captured before adding the product;
-- the quantity is `1`;
-- only one product row is displayed in the cart;
-- the displayed cart product is the expected product.
+- the cart price matches the price shown before adding the product;
+- the quantity is 1;
+- only one product is displayed in the cart.
 
 ## Tech Stack
 
-| Technology | Usage |
+| Technology | Purpose |
 |---|---|
 | Cypress 15 | End-to-end test automation |
 | JavaScript | Test implementation |
 | Node.js 20+ | Runtime environment |
-| npm | Dependency and script management |
+| npm | Dependency management |
 
 ## Project Structure
 
@@ -72,196 +63,111 @@ package-lock.json
 README.md
 ```
 
-## Prerequisites
-
-Install Node.js 20 or newer.
-
-Verify the installed versions:
-
-```bash
-node -v
-npm -v
-```
-
 ## Installation
 
-Clone the repository:
+Clone the repository or extract the ZIP archive.
 
-```bash
-git clone <repository-url>
-```
-
-Open the project folder:
-
-```bash
-cd <project-folder>
-```
-
-Install the dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-## Running the Tests
+## Running the Test
 
-### Headless Mode
-
-Run all Cypress tests:
+Run all tests in headless mode:
 
 ```bash
 npm test
 ```
 
-Alternatively:
+Alternative command:
 
 ```bash
 npm run cy:run
 ```
 
-Run only the required cart test:
+Run only the cart test:
 
 ```bash
 npx cypress run --spec "cypress/e2e/cart.cy.js"
 ```
 
-### Interactive Mode
-
-Open the Cypress Test Runner:
+Open Cypress in interactive mode:
 
 ```bash
 npm run cy:open
 ```
 
-Then:
+Then select E2E Testing, choose a browser, and open cart.cy.js.
 
-1. Select `E2E Testing`.
-2. Choose a browser.
-3. Click `Start E2E Testing`.
-4. Select `cart.cy.js`.
+## Approach
 
-## Test Approach
-
-The solution is implemented as one readable end-to-end business scenario.
-
-Page Object classes are used to separate reusable page interactions from the test flow.
+The project uses a small Page Object structure:
 
 | File | Responsibility |
 |---|---|
-| `products.page.js` | Products page navigation, product lookup, price capture, and add-to-cart behavior |
-| `cart.page.js` | Cart content and product detail validations |
-| `cart.cy.js` | Required end-to-end business scenario |
+| products.page.js | Products navigation, product lookup, price capture, and add-to-cart actions |
+| cart.page.js | Cart content validation |
+| cart.cy.js | Main end-to-end scenario |
 
-This structure keeps the test readable, maintainable, and free from unnecessary duplication.
+This keeps the test readable and separates page interactions from business assertions.
 
 ## Key Decisions
 
 ### Dynamic Price Validation
 
-The product price is not hardcoded.
+The product price is captured directly from the Products page and compared with the cart price.
 
-The test reads the price displayed for `Blue Top` on the Products page, stores it using a Cypress alias, and compares it with the price displayed in the cart.
+The value Rs. 500 is not hardcoded, so the test remains valid if the demo website changes the price.
 
-This keeps the test valid if the demo website changes the product price.
+### Stable Selectors
 
-### Scoped Selectors
-
-The product is located by its visible name:
-
-```javascript
-cy.contains('.productinfo p', productName);
-```
-
-After locating `Blue Top`, the price and add-to-cart selectors are scoped to the same product container.
-
-This prevents the test from interacting with controls belonging to another product.
-
-### Stable Products Navigation Selector
-
-The Products navigation link contains both an icon and visible text:
-
-```html
-<a href="/products">
-  <i class="material-icons card_travel"></i>
-  Products
-</a>
-```
-
-A strict text selector initially failed because the nested icon affected the complete element text.
-
-The navigation selector was updated to use the destination attribute:
+The Products menu link contains both an icon and text. A strict text selector was unreliable, so the test uses:
 
 ```javascript
 cy.get('a[href="/products"]');
 ```
 
-This is more stable than matching the complete visible text.
+The Blue Top product is located by its visible name:
+
+```javascript
+cy.contains('.productinfo p', productName);
+```
+
+Price and add-to-cart selectors are then scoped to the same product container.
 
 ### Cypress Actionability
 
-The website contains a visible add-to-cart button and another add-to-cart control inside a hover overlay.
+The website contains a visible add-to-cart button and another button inside a hover overlay.
 
-The test scopes the selector to the visible `.productinfo` container and verifies that the button is visible before clicking it.
-
-The test does not use forced clicks:
-
-```javascript
-{ force: true }
-```
-
-This preserves Cypress actionability checks and better represents real user behavior.
+The test interacts with the visible button and does not use forced clicks.
 
 ### No Hardcoded Waits
 
-The project does not use fixed waits such as:
+The project does not use fixed waits such as cy.wait(3000).
 
-```javascript
-cy.wait(3000);
-```
+Cypress retryability and assertions are used instead.
 
-Instead, it relies on Cypress retryability.
+### Cart Validation
 
-Commands and assertions automatically retry until the expected condition is met or the configured timeout is reached.
-
-### UI State Validation
-
-The test validates important page states before continuing:
+The test verifies:
 
 - Products page URL;
-- `All Products` heading;
-- confirmation modal visibility;
-- `Added!` confirmation message;
+- All Products heading;
+- confirmation modal;
+- Added message;
 - cart URL;
-- cart row count;
+- product row count;
 - product name;
 - product price;
 - quantity.
 
-## Cart Isolation
-
-A normal Cypress test run starts with a clean browser context.
-
-The test also explicitly verifies that the cart contains exactly one product row:
-
-```javascript
-cy.get('#cart_info_table tbody tr')
-  .should('have.length', 1);
-```
-
-Unexpected existing products or duplicate products therefore cause the test to fail.
+The cart must contain exactly one product row.
 
 ## Public Website Considerations
 
-Automation Exercise is a public demo website.
-
-Its behavior may occasionally be affected by:
-
-- slow responses;
-- third-party advertisements;
-- temporary availability issues;
-- HTML markup changes;
-- CSS class changes;
-- page structure changes.
+Automation Exercise is a public demo website. Its behavior may be affected by slow responses, advertisements, temporary availability issues, or markup changes.
 
 The project does not use:
 
@@ -271,19 +177,11 @@ The project does not use:
 - real personal information;
 - unnecessary forced interactions.
 
-During implementation, the Products navigation selector required an update because the menu link contained a nested icon and did not match a strict Products-only regular expression.
+During implementation, the Products navigation selector was updated because the original strict text selector did not match the link reliably due to a nested icon.
 
-The issue was handled by selecting the link through its `href` attribute:
-
-```javascript
-cy.get('a[href="/products"]');
-```
-
-If the public website markup changes again, selectors should be updated in the Page Object files without changing the main business assertions.
+If the website markup changes, selectors should be updated in the Page Object files without changing the main scenario assertions.
 
 ## Test Result
-
-The required test was executed successfully:
 
 ```text
 Tests: 1
@@ -292,24 +190,10 @@ Failing: 0
 All specs passed
 ```
 
-The successful headless execution completed in approximately three seconds.
-
-## Deliverables
-
-The assignment can be submitted as:
-
-- a GitHub repository link;
-- a ZIP archive without `node_modules`, Cypress screenshots, and Cypress videos.
-
-Recommended archive name:
-
-```text
-Leonid-Ksenchuk-Orca-Cypress-Assignment.zip
-```
+The successful headless run completed in approximately three seconds.
 
 ## Author
 
-**Leonid Ksenchuk**
+Leonid Ksenchuk
 
 Technical assignment prepared for Orca.
-````
